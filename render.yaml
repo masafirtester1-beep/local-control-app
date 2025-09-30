@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: local-control-app
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: SECRET_TOKEN
+        sync: false
