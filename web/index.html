@@ -1,74 +1,995 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <title>Local Control — واجهة</title>
-  <style>
-    body{font-family:system-ui,Arial;padding:16px}
-    input,button,textarea{padding:8px;margin:6px 0}
-    textarea{width:100%;height:220px}
-    .row{margin:12px 0}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير شبكة الواي فاي - WiFi Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .wifi-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            background: var(--light);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--secondary);
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .device-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .device-item:hover {
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .device-item:last-child {
+            border-bottom: none;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .device-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-size: 18px;
+        }
+        
+        .device-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .device-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .device-mac {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .device-ip {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .device-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+        
+        .status-connected {
+            color: var(--secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-disconnected {
+            color: var(--danger);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .signal-strength {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .signal-bar {
+            width: 4px;
+            height: 12px;
+            background: #ddd;
+            border-radius: 2px;
+        }
+        
+        .signal-bar.active {
+            background: var(--secondary);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--gray);
+            transition: color 0.2s;
+        }
+        
+        .action-btn:hover {
+            color: var(--dark);
+        }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.5s;
+        }
+        
+        .refresh-btn:hover {
+            transform: rotate(180deg);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: var(--dark);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .notification.success {
+            border-left-color: var(--secondary);
+        }
+        
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .password-strength {
+            height: 5px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        .password-requirements {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .requirement i {
+            font-size: 12px;
+        }
+        
+        .requirement.met {
+            color: var(--secondary);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        @media (max-width: 600px) {
+            .device-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .device-status {
+                align-items: flex-start;
+            }
+            
+            .actions {
+                align-self: flex-end;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Local Control — واجهة التحكم</h2>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-wifi"></i> مدير شبكة الواي فاي</h1>
+            <p>إدارة كاملة لشبكة الواي فاي المنزلية الخاصة بك</p>
+            
+            <div class="wifi-status">
+                <div class="status-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>الحالة: <strong>متصلة</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>الأمان: <strong>WPA2</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>الإشارة: <strong>قوية</strong></span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-key"></i> إعدادات الأمان
+                        </div>
+                    </div>
+                    
+                    <div class="tabs">
+                        <div class="tab active" data-tab="password">كلمة السر</div>
+                        <div class="tab" data-tab="encryption">التشفير</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="password-tab">
+                        <div class="form-group">
+                            <label for="ssid">اسم الشبكة (SSID)</label>
+                            <input type="text" id="ssid" value="بيتنا_الذكي">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="current-password">كلمة السر الحالية</label>
+                            <input type="password" id="current-password" value="••••••••" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-password">كلمة السر الجديدة</label>
+                            <input type="password" id="new-password" placeholder="أدخل كلمة السر الجديدة">
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="password-strength-bar"></div>
+                            </div>
+                            <div class="password-requirements" id="password-requirements">
+                                <div class="requirement" id="req-length"><i class="fas fa-times"></i> 8 أحرف على الأقل</div>
+                                <div class="requirement" id="req-uppercase"><i class="fas fa-times"></i> حرف كبير واحد على الأقل</div>
+                                <div class="requirement" id="req-number"><i class="fas fa-times"></i> رقم واحد على الأقل</div>
+                                <div class="requirement" id="req-special"><i class="fas fa-times"></i> رمز خاص واحد على الأقل</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm-password">تأكيد كلمة السر الجديدة</label>
+                            <input type="password" id="confirm-password" placeholder="أعد إدخال كلمة السر الجديدة">
+                        </div>
+                        
+                        <button class="btn btn-success btn-block" id="change-password-btn">
+                            <i class="fas fa-save"></i> حفظ التغييرات
+                        </button>
+                    </div>
+                    
+                    <div class="tab-content" id="encryption-tab">
+                        <div class="form-group">
+                            <label for="encryption-type">نوع التشفير</label>
+                            <select id="encryption-type">
+                                <option value="wpa2">WPA2-Personal (موصى به)</option>
+                                <option value="wpa3">WPA3-Personal (أحدث)</option>
+                                <option value="wpa">WPA-Personal</option>
+                                <option value="wep">WEP (غير آمن)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="broadcast-ssid">بث اسم الشبكة (SSID)</label>
+                            <select id="broadcast-ssid">
+                                <option value="enabled">مفعل (ظاهر للجميع)</option>
+                                <option value="disabled">معطل (مخفي)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-success btn-block">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-bar"></i> إحصائيات الشبكة
+                        </div>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="connected-devices-count">5</div>
+                            <div class="stat-label">الأجهزة المتصلة</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="blocked-devices-count">1</div>
+                            <div class="stat-label">الأجهزة المحظورة</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">24h</div>
+                            <div class="stat-label">مدة التشغيل</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2.4GHz</div>
+                            <div class="stat-label">تردد الشبكة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-laptop-house"></i> الأجهزة المتصلة
+                        </div>
+                        <button class="refresh-btn" id="refresh-devices-btn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <ul class="device-list" id="device-list">
+                        <!-- سيتم ملء هذه القائمة بالبيانات من JavaScript -->
+                    </ul>
+                    
+                    <div class="empty-state" id="empty-state" style="display: none;">
+                        <i class="fas fa-wifi-slash"></i>
+                        <p>لا توجد أجهزة متصلة بالشبكة</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-ban"></i> الأجهزة المحظورة
+                        </div>
+                    </div>
+                    
+                    <ul class="device-list" id="blocked-device-list">
+                        <!-- سيتم ملء هذه القائمة بالبيانات من JavaScript -->
+                    </ul>
+                    
+                    <div class="empty-state" id="empty-blocked-state">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>لا توجد أجهزة محظورة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
 
-  <label>API Key (x-api-key): <input id="apikey" type="password" style="width:60%"></label>
-
-  <div class="row">
-    <h3>List folder</h3>
-    <input id="listdir" placeholder="مثال: ./web" style="width:60%" />
-    <button onclick="listDir()">List</button>
-  </div>
-
-  <div class="row">
-    <h3>System info</h3>
-    <button onclick="sysInfo()">Get System Info</button>
-  </div>
-
-  <div class="row">
-    <h3>Start app (npm start)</h3>
-    <input id="startdir" placeholder="مثال: ./ (project root)" style="width:60%" />
-    <button onclick="startApp()">Start</button>
-  </div>
-
-  <div class="row">
-    <h3>Backup folder → ZIP</h3>
-    <input id="backupdir" placeholder="مثال: ./web" style="width:60%" />
-    <button onclick="backup()">Backup</button>
-  </div>
-
-  <h3>Output</h3>
-  <textarea id="out" readonly></textarea>
-
-<script>
-async function callAPI(path, body){
-  const res = await fetch(path, {
-    method: 'POST',
-    headers: {
-      'content-type':'application/json',
-      'x-api-key': document.getElementById('apikey').value
-    },
-    body: JSON.stringify(body||{})
-  });
-  return res.json();
-}
-async function listDir(){
-  const r = await callAPI('/api/list', { dir: document.getElementById('listdir').value || '.' });
-  document.getElementById('out').value = JSON.stringify(r, null, 2);
-}
-async function sysInfo(){
-  const r = await callAPI('/api/sysinfo', {});
-  document.getElementById('out').value = JSON.stringify(r, null, 2);
-}
-async function startApp(){
-  const r = await callAPI('/api/start', { dir: document.getElementById('startdir').value || '.' });
-  document.getElementById('out').value = JSON.stringify(r, null, 2);
-}
-async function backup(){
-  const r = await callAPI('/api/backup', { dir: document.getElementById('backupdir').value || '.' });
-  document.getElementById('out').value = JSON.stringify(r, null, 2);
-}
-</script>
+    <script>
+        // بيانات نموذجية للأجهزة المتصلة
+        let connectedDevices = [
+            { id: 1, name: "هاتف سامسونج", mac: "AA:BB:CC:11:22:33", ip: "192.168.1.101", status: "connected", signal: 4, type: "mobile" },
+            { id: 2, name: "لابتوب ديل", mac: "DD:EE:FF:44:55:66", ip: "192.168.1.102", status: "connected", signal: 3, type: "laptop" },
+            { id: 3, name: "تابت آيباد", mac: "11:22:33:AA:BB:CC", ip: "192.168.1.103", status: "connected", signal: 5, type: "tablet" },
+            { id: 4, name: "تلفاز ذكي", mac: "44:55:66:DD:EE:FF", ip: "192.168.1.104", status: "connected", signal: 2, type: "tv" },
+            { id: 5, name: "جهاز غير معروف", mac: "77:88:99:00:11:22", ip: "192.168.1.105", status: "connected", signal: 1, type: "unknown" }
+        ];
+        
+        let blockedDevices = [
+            { id: 6, name: "هاتف آيفون", mac: "FF:EE:DD:CC:BB:AA", ip: "192.168.1.106", status: "blocked", type: "mobile" }
+        ];
+        
+        // عناصر DOM
+        const deviceList = document.getElementById('device-list');
+        const blockedDeviceList = document.getElementById('blocked-device-list');
+        const refreshDevicesBtn = document.getElementById('refresh-devices-btn');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const newPasswordInput = document.getElementById('new-password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const notification = document.getElementById('notification');
+        const emptyState = document.getElementById('empty-state');
+        const emptyBlockedState = document.getElementById('empty-blocked-state');
+        const connectedDevicesCount = document.getElementById('connected-devices-count');
+        const blockedDevicesCount = document.getElementById('blocked-devices-count');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // دالة للحصول على أيقونة الجهاز بناءً على نوعه
+        function getDeviceIcon(type) {
+            const icons = {
+                'mobile': 'fas fa-mobile-alt',
+                'laptop': 'fas fa-laptop',
+                'tablet': 'fas fa-tablet-alt',
+                'tv': 'fas fa-tv',
+                'unknown': 'fas fa-question-circle'
+            };
+            return icons[type] || icons['unknown'];
+        }
+        
+        // دالة لعرض الأجهزة المتصلة
+        function renderDevices() {
+            deviceList.innerHTML = '';
+            blockedDeviceList.innerHTML = '';
+            
+            if (connectedDevices.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                
+                connectedDevices.forEach(device => {
+                    const deviceItem = document.createElement('li');
+                    deviceItem.className = 'device-item';
+                    
+                    const signalBars = [];
+                    for (let i = 1; i <= 5; i++) {
+                        signalBars.push(`<div class="signal-bar ${i <= device.signal ? 'active' : ''}"></div>`);
+                    }
+                    
+                    deviceItem.innerHTML = `
+                        <div class="device-info">
+                            <div class="device-icon">
+                                <i class="${getDeviceIcon(device.type)}"></i>
+                            </div>
+                            <div class="device-details">
+                                <div class="device-name">${device.name}</div>
+                                <div class="device-mac">${device.mac}</div>
+                                <div class="device-ip">${device.ip}</div>
+                            </div>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-${device.status}">
+                                <i class="fas fa-circle"></i> متصل
+                            </span>
+                            <div class="signal-strength">
+                                ${signalBars.join('')}
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn" title="معلومات الجهاز" onclick="showDeviceInfo(${device.id})">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            <button class="action-btn" title="حظر الجهاز" onclick="blockDevice(${device.id})">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    deviceList.appendChild(deviceItem);
+                });
+            }
+            
+            if (blockedDevices.length === 0) {
+                emptyBlockedState.style.display = 'block';
+            } else {
+                emptyBlockedState.style.display = 'none';
+                
+                blockedDevices.forEach(device => {
+                    const deviceItem = document.createElement('li');
+                    deviceItem.className = 'device-item';
+                    
+                    deviceItem.innerHTML = `
+                        <div class="device-info">
+                            <div class="device-icon">
+                                <i class="${getDeviceIcon(device.type)}"></i>
+                            </div>
+                            <div class="device-details">
+                                <div class="device-name">${device.name}</div>
+                                <div class="device-mac">${device.mac}</div>
+                                <div class="device-ip">${device.ip}</div>
+                            </div>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-${device.status}">
+                                <i class="fas fa-circle"></i> محظور
+                            </span>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn" title="إلغاء الحظر" onclick="unblockDevice(${device.id})">
+                                <i class="fas fa-unlock"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    blockedDeviceList.appendChild(deviceItem);
+                });
+            }
+            
+            // تحديث الإحصائيات
+            connectedDevicesCount.textContent = connectedDevices.length;
+            blockedDevicesCount.textContent = blockedDevices.length;
+        }
+        
+        // دالة لتحديث قائمة الأجهزة
+        function refreshDevices() {
+            showNotification('جاري تحديث قائمة الأجهزة...', 'info');
+            
+            // محاكاة وقت التحميل
+            setTimeout(() => {
+                // في التطبيق الحقيقي، ستتم إضافة أجهزة جديدة أو إزالة أجهزة منقطعة
+                // محاكاة تغيير عشوائي في قوة الإشارة
+                connectedDevices.forEach(device => {
+                    device.signal = Math.floor(Math.random() * 5) + 1;
+                });
+                
+                renderDevices();
+                showNotification('تم تحديث قائمة الأجهزة بنجاح', 'success');
+            }, 1500);
+        }
+        
+        // دالة لتغيير كلمة السر
+        function changePassword() {
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (!newPassword || !confirmPassword) {
+                showNotification('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('كلمتا السر غير متطابقتين', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showNotification('كلمة السر يجب أن تكون 8 أحرف على الأقل', 'error');
+                return;
+            }
+            
+            showNotification('جاري تغيير كلمة السر...', 'info');
+            
+            // محاكاة وقت التحميل
+            setTimeout(() => {
+                // في التطبيق الحقيقي، سيتم هنا إرسال طلب لتغيير كلمة السر
+                showNotification('تم تغيير كلمة السر بنجاح', 'success');
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                checkPasswordStrength('');
+            }, 2000);
+        }
+        
+        // دالة لحظر جهاز
+        function blockDevice(deviceId) {
+            const deviceIndex = connectedDevices.findIndex(d => d.id === deviceId);
+            
+            if (deviceIndex !== -1) {
+                const device = connectedDevices[deviceIndex];
+                
+                if (confirm(`هل أنت متأكد من أنك تريد حظر الجهاز "${device.name}"؟`)) {
+                    showNotification(`جاري حظر الجهاز ${device.name}...`, 'info');
+                    
+                    // محاكاة وقت التحميل
+                    setTimeout(() => {
+                        // نقل الجهاز من قائمة المتصلين إلى قائمة المحظورين
+                        device.status = 'blocked';
+                        blockedDevices.push(device);
+                        connectedDevices.splice(deviceIndex, 1);
+                        
+                        renderDevices();
+                        showNotification(`تم حظر الجهاز ${device.name}`, 'success');
+                    }, 1500);
+                }
+            }
+        }
+        
+        // دالة لإلغاء حظر جهاز
+        function unblockDevice(deviceId) {
+            const deviceIndex = blockedDevices.findIndex(d => d.id === deviceId);
+            
+            if (deviceIndex !== -1) {
+                const device = blockedDevices[deviceIndex];
+                
+                showNotification(`جاري إلغاء حظر الجهاز ${device.name}...`, 'info');
+                
+                // محاكاة وقت التحميل
+                setTimeout(() => {
+                    // نقل الجهاز من قائمة المحظورين إلى قائمة المتصلين
+                    device.status = 'connected';
+                    device.signal = Math.floor(Math.random() * 5) + 1;
+                    connectedDevices.push(device);
+                    blockedDevices.splice(deviceIndex, 1);
+                    
+                    renderDevices();
+                    showNotification(`تم إلغاء حظر الجهاز ${device.name}`, 'success');
+                }, 1500);
+            }
+        }
+        
+        // دالة لعرض معلومات الجهاز
+        function showDeviceInfo(deviceId) {
+            const device = connectedDevices.find(d => d.id === deviceId) || blockedDevices.find(d => d.id === deviceId);
+            
+            if (device) {
+                alert(`معلومات الجهاز:\n\nالاسم: ${device.name}\nعنوان MAC: ${device.mac}\nعنوان IP: ${device.ip}\nالحالة: ${device.status === 'connected' ? 'متصل' : 'محظور'}`);
+            }
+        }
+        
+        // دالة لعرض الإشعارات
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // دالة للتحقق من قوة كلمة السر
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const requirements = {
+                length: false,
+                uppercase: false,
+                number: false,
+                special: false
+            };
+            
+            // التحقق من الطول
+            if (password.length >= 8) {
+                strength += 25;
+                requirements.length = true;
+                document.getElementById('req-length').classList.add('met');
+                document.getElementById('req-length').querySelector('i').className = 'fas fa-check';
+            } else {
+                document.getElementById('req-length').classList.remove('met');
+                document.getElementById('req-length').querySelector('i').className = 'fas fa-times';
+            }
+            
+            // التحقق من وجود حرف كبير
+            if (/[A-Z]/.test(password)) {
+                strength += 25;
+                requirements.uppercase = true;
+                document.getElementById('req-uppercase').classList.add('met');
+                document.getElementById('req-uppercase').querySelector('i').className = 'fas fa-check';
+            } else {
+                document.getElementById('req-uppercase').classList.remove('met');
+                document.getElementById('req-uppercase').querySelector('i').className = 'fas fa-times';
+            }
+            
+            // التحقق من وجود رقم
+            if (/[0-9]/.test(password)) {
+                strength += 25;
+                requirements.number = true;
+                document.getElementById('req-number').classList.add('met');
+                document.getElementById('req-number').querySelector('i').className = 'fas fa-check';
+            } else {
+                document.getElementById('req-number').classList.remove('met');
+                document.getElementById('req-number').querySelector('i').className = 'fas fa-times';
+            }
+            
+            // التحقق من وجود رمز خاص
+            if (/[^A-Za-z0-9]/.test(password)) {
+                strength += 25;
+                requirements.special = true;
+                document.getElementById('req-special').classList.add('met');
+                document.getElementById('req-special').querySelector('i').className = 'fas fa-check';
+            } else {
+                document.getElementById('req-special').classList.remove('met');
+                document.getElementById('req-special').querySelector('i').className = 'fas fa-times';
+            }
+            
+            // تحديث شريط قوة كلمة السر
+            passwordStrengthBar.style.width = `${strength}%`;
+            
+            // تغيير لون الشريط بناءً على القوة
+            if (strength < 50) {
+                passwordStrengthBar.style.background = '#e74c3c';
+            } else if (strength < 75) {
+                passwordStrengthBar.style.background = '#f39c12';
+            } else {
+                passwordStrengthBar.style.background = '#2ecc71';
+            }
+        }
+        
+        // إضافة مستمعي الأحداث
+        refreshDevicesBtn.addEventListener('click', refreshDevices);
+        changePasswordBtn.addEventListener('click', changePassword);
+        newPasswordInput.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+        
+        // إضافة مستمعي الأحداث للتبويبات
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // إزالة النشاط من جميع التبويبات والمحتويات
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                
+                // إضافة النشاط للتبويب والمحتوى المحدد
+                this.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // التهيئة الأولية
+        renderDevices();
+        checkPasswordStrength('');
+    </script>
 </body>
 </html>
